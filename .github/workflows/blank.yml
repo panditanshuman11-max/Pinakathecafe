@@ -1,0 +1,43 @@
+name: Unzip Pinaka The Cafe Website
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Unzip Website Files
+        run: |
+          ZIP_FILE="pinaka-the-cafe-website.zip"
+
+          if [ ! -f "$ZIP_FILE" ]; then
+            echo "Error: $ZIP_FILE not found in repository root."
+            exit 1
+          fi
+
+          mkdir -p website
+          unzip -o "$ZIP_FILE" -d website
+
+          echo "Website successfully extracted."
+
+      - name: Commit Extracted Files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add website/
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Extract Pinaka The Cafe website"
+            git push
+          fi
